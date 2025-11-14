@@ -20,7 +20,7 @@ const projectsData = [
     description:
       "Developing a secure file transfer platform that ensures encryption, authentication, and cloud-based delivery. Integrated Spring Boot backend with React frontend, and containerized with Docker for CI/CD deployment.",
     category: "DevSecOps",
-    image: "../../../pics/letter-s.png",
+    image: "https://www.kiteworks.com/wp-content/uploads/2022/06/Top-Secure-File-Transfer-Software-Solutions.webp",
     link: "",
     status: "working" // <- important: set to "working" or "in-progress"
   }
