@@ -176,7 +176,7 @@ export default function TeamRadio() {
             <Card className="bg-gradient-to-br from-red-600/20 to-cyan-600/20 border-2 border-red-600/30">
               <CardContent className="p-6 text-center">
                 <div className="text-3xl mb-2">🏁</div>
-                <h4 className="font-bold mb-2">Ready to Race</h4>
+                <h4 className="font-bold mb-2">Fueling the Future with Speed and Secure Precision</h4>
                 <p className="text-sm opacity-70">
                   Open to full-time opportunities, internships, and exciting tech projects
                 </p>

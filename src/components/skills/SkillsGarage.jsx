@@ -143,7 +143,8 @@ import {
   Network,
   Binoculars,
   ShieldCheck,
-  Wrench
+  Wrench,
+  Layers
 } from "lucide-react";
 import { Card, CardContent } from "../ui/card";
 
@@ -167,7 +168,7 @@ const skillCategories = [
     title: "Backend & Databases",
     icon: Database,
     color: "from-cyan-600 to-cyan-800",
-    skills: ["MySQL", "PostgreSQL", "SQL"],
+    skills: ["SQL"],
     description: "Server-side logic and relational database design, queries, and integration."
   },
   {
@@ -197,7 +198,15 @@ const skillCategories = [
     color: "from-purple-600 to-purple-800",
     skills: ["OOPs", "NIST Cybersecurity Framework (basics)"],
     description: "Foundational software design principles and basic knowledge of security frameworks and controls."
+  },
+  {
+    title: "Frameworks & Methodologies",
+    icon: Layers, // or ClipboardCheck / PuzzlePiece for visual variety
+    color: "from-purple-600 to-purple-800",
+    skills: ["React (basic)", "Spring Boot (basics)"],
+    description: "Understanding of core software frameworks and development methodologies, with foundational experience in building modular, maintainable applications."
   }
+
 ];
 
 export default function SkillsGarage() {
