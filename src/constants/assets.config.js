@@ -51,17 +51,18 @@ export const HERO_VIDEO = {
    Group 4 → Certs + Contact
 ══════════════════════════════════════════════════════════════ */
 export const BG_IMAGES = {
-  dark: {
-    group2: "/src/assets/About&Skills.jpg",
-    group3: "/src/assets/projects&Education.jpg",
-    group4: "/src/assets/Certification&contact.jpg",
-  },
-  light: {
-    group2: "/src/assets/whiteThemeCorvettezr1x.png",
-    group3: "/src/assets/whiteThemeKoenegsegg.png",
-    group4: "/src/assets/whitePagani.png",
-  },
-};
+   dark: {
+     group2: "/assets/backgrounds/About&Skills.jpg",
+     group3: "/assets/backgrounds/projects&Education.jpg",
+     group4: "/assets/backgrounds/Certification&contact.jpg",
+   },
+   light: {
+     group2: "/assets/backgrounds/whiteThemeCorvettezr1x.png",
+     group3: "/assets/backgrounds/whiteThemeKoenegsegg.png",
+     group4: "/assets/backgrounds/whitePagani.png",
+   },
+ };
+
 
 /* ══════════════════════════════════════════════════════════════
    ④ SECTION → BACKGROUND GROUP MAP
