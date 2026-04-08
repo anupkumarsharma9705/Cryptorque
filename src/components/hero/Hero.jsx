@@ -1,124 +1,300 @@
-import React, { useEffect, useState } from "react";
-import { ChevronDown, Zap, Gauge } from "lucide-react";
-import { Button } from "../ui/button";
+import React, { useEffect, useRef, useState } from "react";
 
-export default function Hero() {
-  const [speed, setSpeed] = useState(0);
-  const [loaded, setLoaded] = useState(false);
+const LINES = [
+  "> initializing system...",
+  "> loading profile: anup_kumar_sharma",
+  "> role: backend_developer",
+  "> stack: java · spring_boot · rest_api · mysql",
+  "> status: ready_to_deploy ✓",
+];
+
+function Terminal() {
+  const [done,     setDone]     = useState([]);
+  const [current,  setCurrent]  = useState(0);
+  const [charIdx,  setCharIdx]  = useState(0);
+  const [finished, setFinished] = useState(false);
 
   useEffect(() => {
-    setLoaded(true);
-    const interval = setInterval(() => {
-      setSpeed((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          return 100;
-        }
-        return prev + 2;
-      });
-    }, 20);
-    return () => clearInterval(interval);
-  }, []);
-
-  const scrollToProjects = () => {
-    document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" });
-  };
+    if (current >= LINES.length) { setFinished(true); return; }
+    if (charIdx < LINES[current].length) {
+      const t = setTimeout(() => setCharIdx(c => c + 1), 20);
+      return () => clearTimeout(t);
+    }
+    const t = setTimeout(() => {
+      setDone(d => [...d, LINES[current]]);
+      setCurrent(c => c + 1);
+      setCharIdx(0);
+    }, 100);
+    return () => clearTimeout(t);
+  }, [current, charIdx]);
 
   return (
-    <section
-      id="home"
-      className="relative flex flex-col items-center justify-center min-h-[85vh] pt-12 overflow-hidden"
-    >
-      <div className="absolute inset-0 carbon-fiber opacity-5"></div>
-      <div className="absolute inset-0 bg-gradient-to-br from-red-950/20 via-transparent to-cyan-950/20"></div>
+    <div style={{ fontFamily:"var(--font-mono)", fontSize:".72rem", lineHeight:1.9, color:"var(--text-secondary)" }}>
+      {done.map((line, i) => (
+        <div key={i} style={{ color: i === done.length - 1 && finished ? "var(--accent-green)" : "var(--text-secondary)" }}>
+          {line}
+        </div>
+      ))}
+      {!finished && (
+        <div>
+          {LINES[current]?.slice(0, charIdx)}
+          <span style={{
+            display:"inline-block", width:"7px", height:"13px",
+            background:"var(--accent-red)", verticalAlign:"text-bottom",
+            animation:"blink 1s step-end infinite",
+          }} />
+        </div>
+      )}
+    </div>
+  );
+}
 
-      <div className="absolute inset-0 opacity-10">
-        {[...Array(20)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute h-px bg-gradient-to-r from-transparent via-red-500 to-transparent"
-            style={{
-              top: `${i * 5}%`,
-              width: '100%',
-              animation: `slide ${3 + i * 0.1}s linear infinite`,
-            }}
-          />
+function KineticWord({ text, color, delay = 0 }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const t = setTimeout(() => {
+      el.style.opacity    = "1";
+      el.style.transform  = "translateY(0) skewY(0)";
+    }, delay);
+    return () => clearTimeout(t);
+  }, [delay]);
+
+  return (
+    <span ref={ref} style={{
+      display:"inline-block", opacity:0,
+      transform:"translateY(80px) skewY(5deg)",
+      transition:"opacity 0.85s cubic-bezier(0.22,1,0.36,1), transform 0.85s cubic-bezier(0.22,1,0.36,1)",
+      color: color || "var(--text-primary)",
+      willChange:"transform,opacity",
+    }}>
+      {text}
+    </span>
+  );
+}
+
+const SPEED_LINES = [
+  { top:"22%", duration:"3.2s", delay:"0s",   width:"35%" },
+  { top:"38%", duration:"2.6s", delay:"0.8s", width:"22%" },
+  { top:"54%", duration:"4.1s", delay:"0.3s", width:"28%" },
+  { top:"68%", duration:"3.5s", delay:"1.4s", width:"18%" },
+];
+
+const metrics = [
+  { label:"BACKEND_PROJECTS", value:"02",   color:"var(--accent-red)"   },
+  { label:"TECHNOLOGIES",     value:"20+",  color:"var(--accent-blue)"  },
+  { label:"FOCUS_SCORE",      value:"100%", color:"var(--accent-green)" },
+];
+
+export default function Hero() {
+  const [loaded, setLoaded] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const t = setTimeout(() => setLoaded(true), 80);
+    return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    let ticking = false;
+    const onScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => { setScrollY(window.scrollY); ticking = false; });
+        ticking = true;
+      }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const contentParallax = scrollY * 0.22;
+  const bgParallax      = scrollY * 0.10;
+
+  return (
+    <section id="home" style={{
+      minHeight:"100vh", display:"flex", flexDirection:"column",
+      justifyContent:"center", padding:"80px 24px 60px",
+      maxWidth:"1200px", margin:"0 auto", overflow:"visible", position:"relative",
+    }}>
+
+      {/* Speed lines */}
+      <div style={{ position:"absolute", inset:0, pointerEvents:"none", overflow:"hidden" }}>
+        {SPEED_LINES.map((l, i) => (
+          <div key={i} style={{
+            position:"absolute", top:l.top, left:0, width:l.width, height:"1px",
+            background:"linear-gradient(90deg, transparent, var(--accent-red), transparent)",
+            animation:`speedLine ${l.duration} linear infinite`,
+            animationDelay:l.delay,
+          }} />
         ))}
       </div>
 
-      <style>{`
-        @keyframes slide {
-          from { transform: translateX(-100%); }
-          to { transform: translateX(100%); }
-        }
-        @keyframes pulse-glow {
-          0%, 100% { box-shadow: 0 0 20px rgba(220, 0, 0, 0.5); }
-          50% { box-shadow: 0 0 40px rgba(220, 0, 0, 0.8); }
-        }
-      `}</style>
+      {/* Ghost background word — parallax */}
+      <div style={{
+        position:"absolute", right:"-5%", top:"50%",
+        transform:`translateY(calc(-50% + ${bgParallax}px))`,
+        fontFamily:"var(--font-display)", fontSize:"clamp(8rem,18vw,18rem)",
+        fontWeight:800, color:"transparent",
+        WebkitTextStroke:"1px rgba(224,36,68,0.20)",
+        letterSpacing:"-.05em", userSelect:"none",
+        pointerEvents:"none", lineHeight:1, whiteSpace:"nowrap",
+      }}>
+        JAVA
+      </div>
 
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div className={`mb-8 transition-all duration-1000 ${loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-black/40 backdrop-blur-sm border-2 border-red-600/50">
-            <Gauge className="w-5 h-5 text-red-500 animate-pulse" />
-            <span className="font-mono text-2xl font-bold text-red-500">{speed}%</span>
-            <span className="text-sm opacity-70">LOADED</span>
+      {/* Status bar */}
+      <div style={{
+        display:"flex", alignItems:"center", gap:"8px",
+        fontFamily:"var(--font-mono)", fontSize:".6rem",
+        letterSpacing:"0.15em", color:"var(--text-muted)",
+        marginBottom:"48px",
+        opacity:  loaded ? 1 : 0,
+        transform:loaded ? "none" : "translateY(10px)",
+        transition:"all 0.6s ease 0.1s",
+      }}>
+        <span className="glow-pulse" style={{
+          width:"6px", height:"6px", borderRadius:"50%",
+          background:"var(--accent-green)", flexShrink:0,
+        }} />
+        SYSTEM ONLINE · HYDERABAD, IN · 2025
+      </div>
+
+      {/* Hero grid */}
+      <div style={{
+        display:"grid", gridTemplateColumns:"1fr 1fr", gap:"64px", alignItems:"center",
+        transform:`translateY(${contentParallax * -1}px)`,
+        willChange:"transform",
+      }} className="hero-grid">
+
+        {/* ── LEFT ── */}
+        <div>
+          <div style={{
+            fontFamily:"var(--font-mono)", fontSize:".6rem",
+            letterSpacing:".2em", color:"var(--accent-red)", marginBottom:"16px",
+            opacity:loaded?1:0, transition:"opacity 0.5s ease 0.2s",
+          }}>
+            ANUP_KUMAR_SHARMA.java
+          </div>
+
+          <h1 style={{
+            fontFamily:"var(--font-display)",
+            fontSize:"clamp(2.8rem,5.5vw,5rem)",
+            fontWeight:800, lineHeight:.95,
+            letterSpacing:"-.03em", marginBottom:"24px",
+          }}>
+            <div style={{ overflow:"hidden" }}>
+              <KineticWord text="BACKEND" delay={300} />
+            </div>
+            <div style={{ overflow:"hidden" }}>
+              <KineticWord text="DEVELOPER" color="var(--accent-red)" delay={450} />
+            </div>
+          </h1>
+
+          <p style={{
+            fontSize:".95rem", lineHeight:1.7, color:"var(--text-secondary)",
+            maxWidth:"420px", marginBottom:"36px",
+            opacity:loaded?1:0, transform:loaded?"none":"translateY(16px)",
+            transition:"all 0.7s ease 0.7s",
+          }}>
+            Building scalable and secure server-side systems with{" "}
+            <strong style={{ color:"var(--text-primary)", fontWeight:500 }}>Java</strong> and{" "}
+            <strong style={{ color:"var(--text-primary)", fontWeight:500 }}>Spring Boot</strong>.
+            Focused on clean architecture, REST API design, and production-ready code.
+          </p>
+
+          <div style={{
+            display:"flex", gap:"12px", flexWrap:"wrap",
+            opacity:loaded?1:0, transform:loaded?"none":"translateY(16px)",
+            transition:"all 0.7s ease 0.9s",
+          }}>
+            <button
+              onClick={() => document.getElementById("projects")?.scrollIntoView({ behavior:"smooth" })}
+              style={{
+                fontFamily:"var(--font-mono)", fontSize:".68rem", letterSpacing:".1em",
+                padding:"11px 24px", background:"var(--accent-red)", color:"#fff",
+                border:"none", borderRadius:"2px", cursor:"pointer",
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background="var(--accent-red-dim)"; e.currentTarget.style.transform="translateY(-2px)"; }}
+              onMouseLeave={e => { e.currentTarget.style.background="var(--accent-red)"; e.currentTarget.style.transform="none"; }}
+            >
+              VIEW_PROJECTS →
+            </button>
+            <button
+              onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior:"smooth" })}
+              style={{
+                fontFamily:"var(--font-mono)", fontSize:".68rem", letterSpacing:".1em",
+                padding:"11px 24px", background:"transparent", color:"var(--text-secondary)",
+                border:"1px solid var(--border-accent)", borderRadius:"2px", cursor:"pointer",
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor="var(--accent-red)"; e.currentTarget.style.color="var(--text-primary)"; e.currentTarget.style.transform="translateY(-2px)"; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor="var(--border-accent)"; e.currentTarget.style.color="var(--text-secondary)"; e.currentTarget.style.transform="none"; }}
+            >
+              GET_IN_TOUCH
+            </button>
           </div>
         </div>
 
-        <h1 className={`text-5xl sm:text-7xl lg:text-8xl font-black mb-6 transition-all duration-1000 delay-200 ${loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          <span className="bg-gradient-to-r from-red-600 via-red-500 to-cyan-400 bg-clip-text text-transparent">
-            ANUP KUMAR
-          </span>
-          <br />
-          <span className="bg-gradient-to-r from-cyan-400 via-red-500 to-red-600 bg-clip-text text-transparent">
-            SHARMA
-          </span>
-        </h1>
-
-        <p className={`text-xl sm:text-2xl mb-8 opacity-80 lg:px-12 mx-auto transition-all duration-1000 delay-400 ${loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          Developer • Engineer • F1 Enthusiast
-          <br />
-          <span className="text-base sm:text-lg opacity-60">Merging Code with Horsepower 🏎️💻</span>
-        </p>
-
-        <div className={`grid grid-cols-3 gap-4 lg:px-12 mx-auto mb-12 transition-all duration-1000 delay-600 ${loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          <div className="p-4 rounded-lg bg-black/30 backdrop-blur-sm border border-red-600/30">
-            <div className="text-3xl font-bold text-red-500">3</div>
-            <div className="text-sm opacity-70">Projects</div>
+        {/* ── RIGHT: Terminal ── */}
+        <div style={{
+          opacity:loaded?1:0, transform:loaded?"none":"translateX(32px)",
+          transition:"all 0.8s cubic-bezier(0.22,1,0.36,1) 0.4s",
+        }}>
+          <div style={{ background:"var(--bg-card)", border:"1px solid var(--border)", borderRadius:"4px", overflow:"hidden" }}>
+            <div style={{
+              display:"flex", alignItems:"center", gap:"6px",
+              padding:"10px 16px", borderBottom:"1px solid var(--border)",
+              background:"var(--bg-secondary)",
+            }}>
+              {["#e02444","#f59e0b","#22c55e"].map(c => (
+                <span key={c} style={{ width:"10px",height:"10px",borderRadius:"50%",background:c }} />
+              ))}
+              <span style={{ fontFamily:"var(--font-mono)",fontSize:".58rem",color:"var(--text-muted)",marginLeft:"8px" }}>
+                bash — developer_profile
+              </span>
+            </div>
+            <div style={{ padding:"20px 20px 24px", minHeight:"120px" }}>
+              <Terminal />
+            </div>
           </div>
-          <div className="p-4 rounded-lg bg-black/30 backdrop-blur-sm border border-cyan-500/30">
-            <div className="text-3xl font-bold text-cyan-400">20+</div>
-            <div className="text-sm opacity-70">Tech Stacks</div>
+
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:"8px", marginTop:"12px" }}>
+            {metrics.map(m => (
+              <div key={m.label}
+                style={{ background:"var(--bg-card)", border:"1px solid var(--border)", padding:"16px", textAlign:"center", cursor:"default" }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor="var(--border-accent)"; e.currentTarget.style.transform="translateY(-3px)"; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor="var(--border)"; e.currentTarget.style.transform="none"; }}
+              >
+                <div style={{ fontFamily:"var(--font-mono)", fontSize:"1.3rem", fontWeight:700, color:m.color, letterSpacing:"-.02em", lineHeight:1, marginBottom:"6px" }}>
+                  {m.value}
+                </div>
+                <div style={{ fontFamily:"var(--font-mono)", fontSize:".5rem", color:"var(--text-muted)", letterSpacing:".12em" }}>
+                  {m.label}
+                </div>
+              </div>
+            ))}
           </div>
-          <div className="p-4 rounded-lg bg-black/30 backdrop-blur-sm border border-red-600/30">
-            <div className="text-3xl font-bold text-red-500">100%</div>
-            <div className="text-sm opacity-70">Passion</div>
-          </div>
-        </div>
-
-        <div
-          className={`relative flex flex-col sm:flex-row gap-4 justify-center items-center transition-all duration-1000 delay-800 ${loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-            }`}
-        >
-          {/* View Projects Button */}
-          <Button
-            onClick={scrollToProjects}
-            className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 text-base rounded-lg font-semibold shadow-md hover:shadow-red-600/40 transition-all duration-300"
-          >
-            {/* <Zap className="w-5 h-5 mr-2" /> */}
-            View Projects
-          </Button>
-
-          <Button
-            onClick={() => document.getElementById("team-radio")?.scrollIntoView({ behavior: "smooth" })}
-            className="px-6 py-3 text-base rounded-lg font-semibold border-2 border-red-600 hover:bg-red-600/20"
-          >
-            Get in Touch
-          </Button>
-
         </div>
       </div>
+
+      {/* Scroll cue */}
+      <div style={{
+        marginTop:"64px", display:"flex", alignItems:"center", gap:"12px",
+        opacity:loaded?0.35:0, transition:"opacity 0.6s ease 1.8s",
+      }}>
+        <div style={{ height:"1px", width:"40px", background:"var(--border-accent)" }} />
+        <span style={{ fontFamily:"var(--font-mono)", fontSize:".58rem", letterSpacing:".15em", color:"var(--text-muted)" }}>
+          SCROLL_TO_EXPLORE
+        </span>
+      </div>
+
+      <style>{`
+        @keyframes blink       { 0%,100%{opacity:1} 50%{opacity:0} }
+        @keyframes speedLine   { 0%{transform:translateX(-100%);opacity:0} 20%{opacity:1} 100%{transform:translateX(100vw);opacity:0} }
+        @keyframes glowPulse   { 0%,100%{box-shadow:0 0 4px var(--accent-green)} 50%{box-shadow:0 0 12px var(--accent-green),0 0 24px rgba(34,197,94,0.3)} }
+        .glow-pulse{ animation:glowPulse 2.5s ease-in-out infinite }
+        @media(max-width:768px){ .hero-grid{grid-template-columns:1fr!important;gap:32px!important} }
+      `}</style>
     </section>
   );
 }

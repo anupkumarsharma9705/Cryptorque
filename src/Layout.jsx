@@ -1,209 +1,238 @@
+/**
+ * Layout.jsx
+ * ─────────────────────────────────────────────────────────────────
+ * The Navbar reads isDark from ThemeContext — the SAME source as every
+ * other component. There is no prop threading and no possible lag.
+ *
+ * Navigation uses useNavWipe() for the directional diagonal wipe.
+ * Theme toggle uses ThemeToggleButton from ThemeContext.
+ * ─────────────────────────────────────────────────────────────────
+ */
 import React, { useState, useEffect } from "react";
-import { Menu, X, Sun, Moon } from "lucide-react";
-import { Button } from "./components/ui/button";
+import { useTheme, ThemeToggleButton } from "./context/ThemeContext";
+import { useNavWipe } from "./components/ui/DiagonalWipe";
+import CustomCursor from "./components/ui/CustomCursor";
+
+/* Ordered nav items — ORDER MATTERS for directional wipe logic */
+export const NAV_IDS    = ["home", "about", "skills", "projects", "education", "certs", "contact"];
+export const NAV_LABELS = ["SYS_INIT", "PROFILE", "STACK", "BUILDS", "BACKGROUND", "CERTS", "CONNECT"];
+
+const TICKER = [
+  "JAVA","·","SPRING BOOT","·","REST APIS","·","MYSQL","·",
+  "JPA","·","DOCKER","·","JWT AUTH","·","MVC ARCHITECTURE","·",
+  "BACKEND DEVELOPER","·","OPEN TO OPPORTUNITIES","·",
+];
 
 export default function Layout({ children }) {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  // const [darkMode, setDarkMode] = useState(true); // ❌ disabled toggle
-  const darkMode = true; // ✅ always dark mode
-  const [scrolled, setScrolled] = useState(false);
+  const { isDark }                        = useTheme();           // ← same source as everything
+  const { navTo, WipeOverlay }            = useNavWipe(NAV_IDS);  // ← diagonal wipe
+  const [scrolled,      setScrolled]      = useState(false);
+  const [mobileOpen,    setMobileOpen]    = useState(false);
+  const [activeSection, setActiveSection] = useState("home");
 
-  // Track scroll to update navbar style
+  /* Scroll-based nav background */
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Smooth scroll to section
-  const scrollToSection = (id) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth", block: "start" });
-      setMobileMenuOpen(false);
-    }
+  /* Active section detector */
+  useEffect(() => {
+    const io = new IntersectionObserver(
+      entries => entries.forEach(e => { if (e.isIntersecting) setActiveSection(e.target.id); }),
+      { rootMargin: "-40% 0px -55% 0px" }
+    );
+    NAV_IDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) io.observe(el);
+    });
+    return () => io.disconnect();
+  }, []);
+
+  const handleNav = (id) => {
+    navTo(id);
+    setMobileOpen(false);
   };
 
-  const navItems = [
-    { id: "home", label: "Home", icon: "🏁" },
-    { id: "projects", label: "Projects", icon: "⚙️" },
-    { id: "skills", label: "Skills Garage", icon: "🔧" },
-    { id: "education", label: "Education", icon: "🎓" },
-    { id: "pit-lane", label: "Certifications", icon: "📸" },
-    { id: "team-radio", label: "Team Radio", icon: "📞" },
-  ];
+  /* Nav background — reads isDark directly from context */
+  const navBg = scrolled
+    ? isDark
+      ? "rgba(7,7,15,0.95)"
+      : "rgba(245,245,247,0.95)"
+    : "transparent";
 
   return (
-    <div className={darkMode ? "dark" : ""}>
-      <div
-        className={`min-h-screen transition-colors duration-300 ${
-          darkMode ? "bg-neutral-900 text-gray-100" : "bg-white text-gray-900"
-        }`}
-      >
-        {/* NAVBAR */}
-        <nav
-          className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-            scrolled
-              ? darkMode
-                ? "bg-black/50 backdrop-blur-md shadow-md"
-                : "bg-white/50 backdrop-blur-md shadow-md"
-              : "bg-transparent"
-          }`}
-          style={{
-            transition: "background-color 0.3s ease, backdrop-filter 0.3s ease",
-          }}
-        >
-          <div className="w-full px-6 lg:px-12">
-            <div className="flex justify-between items-center h-14">
-              {/* Logo area */}
-              <div
-                className="flex items-center gap-3 cursor-pointer"
-                onClick={() => scrollToSection("home")}
-              ></div>
+    <div style={{ background: "var(--bg-primary)", color: "var(--text-primary)", minHeight: "100vh" }}>
 
-              {/* Desktop Navigation */}
-              <div className="hidden md:flex items-center gap-1">
-                {navItems.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => scrollToSection(item.id)}
-                    className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-all duration-200 hover:bg-red-600/20 relative group ${
-                      darkMode
-                        ? "text-white"
-                        : scrolled
-                        ? "text-black"
-                        : "text-black"
-                    }`}
-                  >
-                    <span className="mr-2">{item.icon}</span>
-                    {item.label}
-                    {/* <div className="absolute bottom-0 left-0 w-0 h-1 bg-red-600 transition-all duration-300 group-hover:w-full"></div> */}
-                  </button>
-                ))}
-              </div>
+      {/* ── Custom cursor ── */}
+      <CustomCursor />
 
-              {/* Theme Toggle + Mobile Menu */}
-              <div className="flex items-center gap-3">
-                {/* ❌ Disabled theme toggle button */}
-                {/* 
-                <Button
-                  onClick={() => setDarkMode(!darkMode)}
-                  className="hidden sm:flex items-center gap-2 border-2 text-sm px-3 py-1 rounded-lg transition-all duration-200 hover:bg-red-600/20"
-                  style={{
-                    borderColor: "#DC0000",
-                    backgroundColor: "transparent",
-                    color: darkMode ? "#F5F5F5" : "#1A1A1A",
-                  }}
-                >
-                  {darkMode ? (
-                    <>
-                      <Sun className="w-4 h-4" />
-                      <span>Daylight</span>
-                    </>
-                  ) : (
-                    <>
-                      <Moon className="w-4 h-4" />
-                      <span>Night Race</span>
-                    </>
-                  )}
-                </Button>
-                */}
+      {/* ── Diagonal wipe overlay (lives here, covers everything) ── */}
+      <WipeOverlay />
 
-                {/* Mobile Menu Button */}
-                <button
-                  className="md:hidden p-2 rounded-lg hover:bg-red-600/20 transition-colors"
-                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                >
-                  {mobileMenuOpen ? (
-                    <X
-                      className={`w-6 h-6 ${
-                        darkMode ? "text-white" : "text-black"
-                      }`}
-                    />
-                  ) : (
-                    <Menu
-                      className={`w-6 h-6 ${
-                        darkMode ? "text-white" : "text-black"
-                      }`}
-                    />
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
+      {/* ══════════════════════════════════════════════════════════
+          NAV
+      ══════════════════════════════════════════════════════════ */}
+      <nav style={{
+        position:      "fixed",
+        top:           0,
+        left:          0,
+        right:         0,
+        zIndex:        200,
+        borderBottom:  scrolled ? "1px solid var(--border)" : "1px solid transparent",
+        background:    navBg,
+        backdropFilter:scrolled ? "blur(14px)" : "none",
+        transition:    "background .3s ease, border-color .3s ease",
+      }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 24px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: "52px" }}>
 
-          {/* Mobile Menu Dropdown */}
-          {mobileMenuOpen && (
-            <div
-              className={`md:hidden border-t border-red-600/30 ${
-                darkMode
-                  ? "bg-black/90 backdrop-blur-lg text-white"
-                  : "bg-white/90 backdrop-blur-lg text-black"
-              }`}
-            >
-              <div className="px-4 py-6 space-y-2">
-                {navItems.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => scrollToSection(item.id)}
-                    className="w-full text-left px-4 py-3 rounded-lg hover:bg-red-600/20 flex items-center gap-3"
-                  >
-                    <span className="text-xl">{item.icon}</span>
-                    <span className="font-medium">{item.label}</span>
-                  </button>
-                ))}
-                {/* ❌ Disabled mobile theme toggle */}
-                {/*
-                <button
-                  onClick={() => setDarkMode(!darkMode)}
-                  className="w-full text-left px-4 py-3 rounded-lg hover:bg-red-600/20 flex items-center gap-3 border-t border-red-600/30 mt-4 pt-6"
-                >
-                  {darkMode ? (
-                    <Sun className="w-5 h-5" />
-                  ) : (
-                    <Moon className="w-5 h-5" />
-                  )}
-                  <span className="font-medium">
-                    {darkMode ? "Daylight Mode" : "Night Race Mode"}
-                  </span>
-                </button>
-                */}
-              </div>
-            </div>
-          )}
-        </nav>
-
-        {/* MAIN CONTENT */}
-        <main className="pt-16">{children}</main>
-
-        {/* FOOTER */}
-        <footer className="py-16 border-t border-red-600/30 mt-20 text-center">
-          <div className="w-full px-6 lg:px-12">
-            <h3
-              className="text-2xl md:text-3xl font-black mb-3"
+            {/* Logo */}
+            <button
+              onClick={() => handleNav("home")}
               style={{
-                background: "linear-gradient(90deg, #DC0000, #00D2BE)",
-                WebkitBackgroundClip: "text",
-                color: "transparent",
+                fontFamily: "var(--font-mono)", fontSize: ".8rem", fontWeight: 600,
+                color: "var(--accent-red)", letterSpacing: ".1em",
+                background: "none", border: "none", cursor: "none",
+                display: "flex", alignItems: "center", gap: "8px",
               }}
             >
-              "Where Technology Meets the Thrill of Speed"
-            </h3>
-            <p className="text-lg opacity-70 max-w-2xl mx-auto">
-              Passionate about building innovative solutions while living life
-              in the fast lane 🏎️
-            </p>
-            <p className="text-sm opacity-70 mt-8">
-              © 2025. Built with speed and precision.
-            </p>
-            <p className="text-xs mt-2 opacity-50">
-              Powered by React & F1 Passion 🏁
-            </p>
+              <span style={{
+                width: "8px", height: "8px", borderRadius: "50%",
+                background: "var(--accent-red)",
+                boxShadow: "0 0 8px var(--accent-red)",
+                display: "inline-block",
+              }} />
+              AKS.DEV
+            </button>
+
+            {/* Desktop links */}
+            <div style={{ display: "flex", alignItems: "center", gap: "2px" }} className="nav-desktop">
+              {NAV_IDS.map((id, idx) => (
+                <button
+                  key={id}
+                  onClick={() => handleNav(id)}
+                  style={{
+                    fontFamily:  "var(--font-mono)",
+                    fontSize:    ".6rem",
+                    letterSpacing: ".1em",
+                    padding:     "6px 12px",
+                    background:  "none",
+                    border:      "none",
+                    cursor:      "none",
+                    color:       activeSection === id ? "var(--text-primary)" : "var(--text-muted)",
+                    borderBottom:activeSection === id
+                      ? "1px solid var(--accent-red)"
+                      : "1px solid transparent",
+                    transition:  "color .2s ease",
+                  }}
+                  onMouseEnter={e => { if (activeSection !== id) e.currentTarget.style.color = "var(--text-secondary)"; }}
+                  onMouseLeave={e => { if (activeSection !== id) e.currentTarget.style.color = "var(--text-muted)"; }}
+                >
+                  {NAV_LABELS[idx]}
+                </button>
+              ))}
+            </div>
+
+            {/* Controls */}
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              {/* ThemeToggleButton reads from context — can't lag */}
+              <ThemeToggleButton />
+
+              <button
+                onClick={() => setMobileOpen(o => !o)}
+                className="nav-mobile-btn"
+                style={{
+                  display: "none", background: "none",
+                  border: "1px solid var(--border)", color: "var(--text-secondary)",
+                  padding: "6px 10px", cursor: "none",
+                  fontFamily: "var(--font-mono)", fontSize: ".65rem",
+                }}
+              >
+                {mobileOpen ? "CLOSE" : "MENU"}
+              </button>
+            </div>
           </div>
-        </footer>
+        </div>
+
+        {/* Mobile drawer */}
+        {mobileOpen && (
+          <div style={{
+            borderTop: "1px solid var(--border)",
+            background: isDark ? "rgba(7,7,15,0.98)" : "rgba(245,245,247,0.98)",
+            padding: "16px 24px",
+          }}>
+            {NAV_IDS.map((id, idx) => (
+              <button key={id} onClick={() => handleNav(id)} style={{
+                display: "block", width: "100%", textAlign: "left",
+                padding: "10px 0",
+                fontFamily: "var(--font-mono)", fontSize: ".72rem", letterSpacing: ".1em",
+                color: activeSection === id ? "var(--text-primary)" : "var(--text-secondary)",
+                background: "none", border: "none",
+                borderBottom: "1px solid var(--border)", cursor: "none",
+              }}>
+                <span style={{ color: "var(--accent-red)", marginRight: "12px" }}>›</span>
+                {NAV_LABELS[idx]}
+              </button>
+            ))}
+            <div style={{ paddingTop: "12px" }}>
+              <ThemeToggleButton />
+            </div>
+          </div>
+        )}
+      </nav>
+
+      {/* ══════════════════════════════════════════════════════════
+          MAIN CONTENT
+      ══════════════════════════════════════════════════════════ */}
+      <main style={{ paddingTop: "52px" }}>{children}</main>
+
+      {/* ══════════════════════════════════════════════════════════
+          MARQUEE TICKER
+      ══════════════════════════════════════════════════════════ */}
+      <div style={{
+        borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)",
+        padding: "12px 0", overflow: "hidden", background: "var(--bg-secondary)",
+      }}>
+        <div style={{ display: "flex", width: "max-content", animation: "marquee 30s linear infinite" }}>
+          {[...TICKER, ...TICKER].map((item, i) => (
+            <span key={i} style={{
+              fontFamily:    "var(--font-mono)",
+              fontSize:      ".6rem",
+              letterSpacing: ".15em",
+              padding:       "0 16px",
+              whiteSpace:    "nowrap",
+              color:         item === "·" ? "var(--accent-red)" : "var(--text-muted)",
+            }}>
+              {item}
+            </span>
+          ))}
+        </div>
       </div>
+
+      {/* ══════════════════════════════════════════════════════════
+          FOOTER
+      ══════════════════════════════════════════════════════════ */}
+      <footer style={{ borderTop: "1px solid var(--border)", padding: "40px 24px", textAlign: "center" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: ".68rem", color: "var(--text-muted)", letterSpacing: ".08em", marginBottom: "12px" }}>
+            ANUP_KUMAR_SHARMA / BACKEND_DEVELOPER / HYDERABAD
+          </div>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: ".62rem", color: "var(--text-muted)" }}>
+            © 2025 · Built with React + Vite · Precision engineered
+          </div>
+        </div>
+      </footer>
+
+      <style>{`
+        @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+        @media(max-width:768px){
+          .nav-desktop    { display:none!important; }
+          .nav-mobile-btn { display:block!important; }
+          .theme-label    { display:none!important; }
+        }
+      `}</style>
     </div>
   );
 }
