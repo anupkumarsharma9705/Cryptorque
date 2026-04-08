@@ -52,9 +52,9 @@ export const HERO_VIDEO = {
 ══════════════════════════════════════════════════════════════ */
 export const BG_IMAGES = {
    dark: {
-     group2: "/assets/backgrounds/About&Skills.jpg",
-     group3: "/assets/backgrounds/projects&Education.jpg",
-     group4: "/assets/backgrounds/Certification&contact.jpg",
+     group2: "/assets/backgrounds/About-Skills.jpg",
+     group3: "/assets/backgrounds/projects-Education.jpg",
+     group4: "/assets/backgrounds/Certification-contact.jpg",
    },
    light: {
      group2: "/assets/backgrounds/whiteThemeCorvettezr1x.png",
