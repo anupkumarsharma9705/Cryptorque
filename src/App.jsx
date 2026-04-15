@@ -13,7 +13,7 @@
  *           ...
  * ─────────────────────────────────────────────────────────────────
  */
-import React from "react";
+import React, { useEffect } from "react";
 import { ThemeProvider } from "./context/ThemeContext";
 import Layout from "./Layout";
 import Home   from "./pages/Home";
