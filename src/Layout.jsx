@@ -176,9 +176,9 @@ export default function Layout({ children }) {
                 {NAV_LABELS[idx]}
               </button>
             ))}
-            <div style={{ paddingTop: "12px" }}>
+            {/* <div style={{ paddingTop: "12px" }}>
               <ThemeToggleButton />
-            </div>
+            </div> */}
           </div>
         )}
       </nav>

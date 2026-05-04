@@ -2,58 +2,64 @@ import React from "react";
 
 const profile = {
   name: "Anup Kumar Sharma",
-  role: "Backend Developer",
+  role: "Backend Engineer · Fintech & API Security",
   location: "Hyderabad, Telangana",
   email: "AnupKS9705@outlook.com",
   github: "github.com/anupkumarsharma9705",
   linkedin: "linkedin.com/in/aks9705",
-  status: "Available for Opportunities",
+  status: "Open to Backend / Fintech Engineering Roles"
 };
 
 const specs = [
   {
     label: "PRIMARY RUNTIME",
-    value: "Java · Spring Boot",
+    value: "Java 21 · Spring Boot · Spring Data JPA",
     tag: "ACTIVE",
     tagColor: "var(--accent-green)",
   },
   {
-    label: "API PROTOCOL",
-    value: "RESTful · HTTP/HTTPS · JSON",
-    tag: "STABLE",
-    tagColor: "var(--accent-blue)",
+    label: "DISTRIBUTED SYSTEMS",
+    value: "Redis · Multi-Service Architecture · Stateless Design",
+    tag: "PRODUCTION",
+    tagColor: "var(--accent-green)",
   },
   {
-    label: "DATABASE LAYER",
-    value: "MySQL · JPA · Hibernate",
-    tag: "CONNECTED",
-    tagColor: "var(--accent-blue)",
-  },
-  {
-    label: "SECURITY MODULE",
-    value: "JWT · Auth Basics · NIST Awareness",
+    label: "SECURITY LAYER",
+    value: "JWT · Attack Detection · OWASP · Idempotency",
     tag: "ENABLED",
     tagColor: "var(--accent-amber)",
   },
   {
-    label: "DEPLOYMENT",
-    value: "Docker · Maven · Git/GitHub",
-    tag: "CONFIGURED",
+    label: "DATABASE LAYER",
+    value: "MySQL · Hibernate · JPA · Schema Design",
+    tag: "CONNECTED",
+    tagColor: "var(--accent-blue)",
+  },
+  {
+    label: "INFRASTRUCTURE",
+    value: "Docker · Docker Compose · Nginx · Railway",
+    tag: "DEPLOYED",
+    tagColor: "var(--accent-blue)",
+  },
+  {
+    label: "DOMAIN KNOWLEDGE",
+    value: "UPI Architecture · Payment Idempotency · Fraud Scoring",
+    tag: "STUDYING",
     tagColor: "var(--text-secondary)",
   },
 ];
 
 const focus = [
-  "Designing scalable REST APIs with proper request/response contracts",
-  "Building backend systems with structured exception handling and security",
-  "Database schema design with JPA entity relationships",
-  "Writing maintainable, well-structured Java code following OOP principles",
-  "Understanding system performance and secure architecture patterns",
+  "Building security-first API middleware — risk scoring, rate limiting, attack detection, and trust tier management for fintech systems",
+  "Designing idempotent payment flows that prevent duplicate transactions across distributed services using Redis three-state tracking",
+  "Engineering resilient backend systems with graceful degradation — circuit breakers, timeout configuration, and fail-open strategies under infrastructure failure",
+  "MySQL schema design with normalized relationships, indexed queries, and JPA entity mapping for audit-heavy financial data",
+  "Containerized multi-service deployment with Docker Compose health-check dependency ordering and environment-specific configuration",
 ];
 
 export default function About() {
   return (
-    <section id="about" style={{
+    <section id="about"  style={{
       padding: "100px 24px",
       maxWidth: "1200px",
       margin: "0 auto",
@@ -68,7 +74,7 @@ export default function About() {
           color: "var(--accent-red)",
           marginBottom: "12px",
         }}>
-          // SECTION_02 · SYSTEM_PROFILE
+          // SECTION_02 · ENGINEER_PROFILE
         </div>
         <h2 style={{
           fontFamily: "var(--font-display)",

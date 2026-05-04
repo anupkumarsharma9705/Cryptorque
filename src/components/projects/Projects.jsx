@@ -2,8 +2,62 @@ import React, { useState } from "react";
 
 const projects = [
   {
+    id:          "fintech-gateway",
+    index:       "01",
+    title:       "Adaptive Fintech API Security Gateway",
+    type:        "Independent Project",
+    status:      "COMPLETED",
+    statusColor: "var(--accent-amber)",
+    year:        "2026",
+    problem:
+      "Most backend systems are fully exposed to their own API — a single unvalidated request can trigger SQL injection, duplicate payments, or unlimited abuse. This gateway sits in front of any backend and evaluates the trustworthiness of every request in real time before it reaches business logic.",
+    architecture:
+      "Two Spring Boot services: fintech-gateway (port 8081) intercepts all traffic through a 7-stage filter pipeline, and fintech-backend (port 8080) is the protected API. "
+      + "Redis stores rate-limit counts, trust tiers, blacklists, and idempotency state. "
+      + "MySQL persists every security decision to audit_logs and trust_history tables. "
+      + "All services are containerized with Docker Compose.",
+    implementation: [
+      "Multi-factor risk scoring engine calculating a 0–100 score per request from endpoint sensitivity, request frequency (Redis sliding window), time of day, payload size, and IP trust tier — decision thresholds configurable via environment variables",
+      "Three-state idempotency system (NOT_EXISTS → IN_PROGRESS → COMPLETED) using CachedBodyRequestWrapper and CachedResponseWrapper to prevent duplicate payment processing across retries and gateway restarts",
+      "Progressive trust tier system with permanent Redis blacklist — 4 violation levels escalate from 1-minute cooldown to permanent ban, with throttle strike tracking to prevent threshold surfing attacks",
+      "Attack detection layer blocking SQL injection, XSS, and path traversal before requests reach the backend — validated at 100% accuracy across 20 k6 load test iterations",
+      "Async MySQL audit pipeline writing every security event via @Async PersistenceService — zero latency impact on request pipeline, with rolling Logback file logs for compliance",
+      "Full Docker Compose stack (gateway, backend, MySQL, Redis, Nginx frontend) with multi-stage Dockerfiles, non-root container users, health-check-ordered startup, and k6 load testing containerized alongside the stack",
+    ],
+    challenges: [
+      "HTTP InputStream can only be read once — attack detection consumed the body, leaving nothing for the proxy to forward. Solved with CachedBodyRequestWrapper storing bytes on first read and replaying on every subsequent getInputStream() call",
+      "All k6 virtual users shared one IP, triggering the gateway's own blacklist within seconds and making load tests test the security system rather than throughput. Solved by raising thresholds via environment variables for load testing, then restoring production values — demonstrating the config externalization feature in practice",
+      "CachedResponseWrapper caused double chunked Transfer-Encoding headers, rejected by k6's HTTP client. Fixed by returning byte[] with explicit Content-Length from GatewayController, forcing Spring to use content-length instead of chunked encoding",
+    ],
+    productionThinking: {
+      considerations: [
+        "Fixed window rate limiting has a boundary exploitation vulnerability — an attacker can send requests at 11:59 and 12:00, doubling allowed rate. Production fix: Redis Sorted Set with ZADD/ZREMRANGEBYSCORE/ZCARD for true sliding window",
+        "Regex-based attack detection is bypassable via URL encoding (%27 instead of '). Production fix: normalize input (URL decode → Unicode normalize → strip null bytes) before pattern matching, or deploy AWS WAF at the edge",
+        "Idempotency has a race condition — two simultaneous requests with the same key can both pass the isProcessed check before either writes IN_PROGRESS. Production fix: Redis atomic SET NX EX command",
+        "ddl-auto=update silently alters schemas on deployment. Production fix: validate mode with Flyway versioned migration scripts",
+        "IP-only identity is bypassable via VPN rotation. Production fix: composite identity using hash(userId + deviceFingerprint + IP)",
+      ],
+    },
+    tech: [
+      "Java 21",
+      "Spring Boot 4",
+      "Spring Data Redis",
+      "Spring Data JPA",
+      "MySQL 8",
+      "Redis 7",
+      "Docker",
+      "Docker Compose",
+      "k6",
+      "JUnit 5",
+      "Logback",
+      "Nginx",
+    ] ,
+    github: "https://github.com/anupkumarsharma9705/FinGateway.git",
+    note: "Gateway validated under k6 load test — 50 VUs · 104 rps · 6,296 requests · 100% attack detection · 0 server crashes",
+  },
+  {
     id: "sftg",
-    index: "01",
+    index: "02",
     title: "SFTG – Secure File Transfer Gateway",
     type: "Independent Project",
     status: "COMPLETED",
@@ -26,12 +80,12 @@ const projects = [
       "Handling concurrent upload requests with proper service-layer locking",
     ],
     tech: ["Java", "Spring Boot", "Spring Security", "JWT", "MySQL", "JPA", "Docker", "REST APIs"],
-    github: "",
+    github: "https://github.com/anupkumarsharma9705/Secure-File-Transfer-Gateway.git",
     note: "Backend-only project — frontend integration via React is supplementary",
   },
   {
     id: "emotionecho",
-    index: "02",
+    index: "03",
     title: "EmotionEcho – Facial Emotion Recognition",
     type: "Academic Project",
     status: "COMPLETED",

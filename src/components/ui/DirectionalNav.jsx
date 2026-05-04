@@ -170,7 +170,7 @@ export function useDirectionalWipe(orderedIds = []) {
 
     /* Phase 2 — scroll at midpoint (hidden under wipe) */
     schedule(() => {
-      document.getElementById(targetId)?.scrollIntoView({ behavior: "instant", block: "start" });
+      document.getElementById(targetId)?.scrollIntoView({ behavior: "auto", block: "start" });
       if (onScrollFired) onScrollFired();
     }, WIPE_DURATION_MS * 0.48);
 
