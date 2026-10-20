@@ -222,7 +222,7 @@ export default function Education() {
       </div>
 
       <style>{`
-        @media (max-width: 640px) {
+        @media (max-width: 768px) {
           .edu-item { grid-template-columns: 1fr !important; }
           .edu-item > div:first-child { border-right: none !important; border-bottom: 1px solid var(--border); }
         }

@@ -122,18 +122,22 @@ function VideoBg({ url }) {
 }
 
 /* ── Static image background ── */
-function ImageBg({ url }) {
+function ImageBg({ url,isDark }) {
   return (
     <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
-      <div style={{
-        position:           "absolute",
-        inset:              "-5%",    /* slight overscan for subtle parallax */
-        backgroundImage:    `url(${url})`,
-        backgroundSize:     "cover",
-        backgroundPosition: "center",
-        backgroundRepeat:   "no-repeat",
-        filter:             "brightness(0.38) saturate(0.7)",
-      }} />
+      <div className="parallax-bg" style={{
+        position:             "absolute",
+          inset:                0,
+          backgroundImage:      `url(${url})`,
+          backgroundAttachment: "fixed",
+          backgroundSize:       "cover",
+          backgroundPosition:   "center",
+          backgroundRepeat:     "no-repeat",
+          filter:               isDark
+            ? "brightness(0.32) saturate(0.6)"
+            : "brightness(0.7)  saturate(0.65)",
+        }}
+ />
 
       {/* Gradient overlays */}
       <div style={{
@@ -142,10 +146,13 @@ function ImageBg({ url }) {
       }} />
       <div style={{
         position: "absolute", inset: 0,
-        background: "linear-gradient(to right, rgba(7,7,15,0.4) 0%, transparent 40%, transparent 60%, rgba(7,7,15,0.4) 100%)",
+        background: isDark
+          ? "linear-gradient(to right, rgba(7,7,15,0.55) 0%, transparent 35%, transparent 65%, rgba(7,7,15,0.55) 100%)"
+          : "linear-gradient(to right, rgba(245,245,247,0.5) 0%, transparent 35%, transparent 65%, rgba(245,245,247,0.5) 100%)",
       }} />
 
       <GridOverlay />
+      <SpeedLines />
     </div>
   );
 }
