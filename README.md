@@ -1,20 +1,62 @@
-<<<<<<< HEAD
-# React + Vite
+# Anup Kumar Sharma — Portfolio
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A security-first backend engineering portfolio built as a race-engineer telemetry console crossed with a keyboard-driven IDE. Dark by default, with a light theme, command palette, section jumps, and an evidence viewer for the FinGateway architecture, STRIDE model, k6 run, and ADRs.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React 19 + Vite (JSX, no UI framework)
+- Plain CSS design-token system in `src/race/tokens.css` and `src/race/components.css`
+- Syne / Inter / JetBrains Mono via Google Fonts
+- Static assets in `public/race/`
 
-## React Compiler
+## Run
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+npm install
+npm run dev
+npm run build
+npm run preview
+```
 
-## Expanding the ESLint configuration
+## Structure
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```text
+src/
+  race/
+    App.jsx              app shell, navigation, keyboard layer, status bar
+    data.js              all content, metrics, projects, artifacts
+    Hero.jsx             telemetry hero
+    Projects.jsx         expandable case studies
+    Artifacts.jsx        architecture / STRIDE / k6 / ADR viewer
+    ...
+    tokens.css           themes and design tokens
+    components.css       layout and component styles
+index.html               metadata, fonts, theme bootstrap, JSON-LD
+design/                  design source of truth
+```
 
-# portfolio
- 42e0806c9edb2166109ac886bec787224aa11ce9
+The earlier scaffold under `src/App.jsx`, `src/components/`, and `src/constants/` is not imported by the active entry point and is retained only as history.
+
+## Keyboard
+
+| Keys | Action |
+| --- | --- |
+| `Ctrl` / `Cmd` + `K` | Open or close the command palette |
+| `G` then `S` `P` `T` `G` `A` `L` `C` `U` | Jump to system, profile, stack, gateways, artifacts, log, certs, or uplink |
+| `/` | Open the command palette |
+| `T` | Toggle dark / light theme |
+| `?` | Show the shortcut sheet |
+| `Esc` | Close the active overlay or cancel a pending jump |
+
+Theme choice persists in `localStorage` under `aks-theme`. The palette and overlays trap focus, restore it on close, and respect `prefers-reduced-motion`.
+
+## Evidence
+
+The artifacts section renders the actual engineering record: a 7-stage gateway pipeline, an 8-threat STRIDE table, the 60-second k6 run (50 VUs, 104.9 RPS, 6,296 requests, p99 47.6 ms, 0.00% errors), and four ADRs. The k6 numbers describe a controlled load test, not a production SLA. Repository links point at the public FinGateway, Secure File Transfer Gateway, and EmotionEcho projects.
+
+## Content rules
+
+- No proficiency bars; levels are defined by what shipped.
+- No invented production claims, uptime figures, or unsupported infrastructure.
+- Known limitations are shown next to each project.
+- The contact form composes a `mailto:` draft and never submits silently.
