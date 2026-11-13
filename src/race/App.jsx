@@ -454,20 +454,43 @@ export default function App() {
       .map((item) => document.getElementById(item.id))
       .filter(Boolean);
 
-    if (!nodes.length || typeof IntersectionObserver === 'undefined') return undefined;
+    if (!nodes.length) return undefined;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (visible) setActiveSection(visible.target.id);
-      },
-      { rootMargin: '-32% 0px -52% 0px', threshold: [0, 0.05, 0.2] },
-    );
+    let frame = 0;
 
-    nodes.forEach((node) => observer.observe(node));
-    return () => observer.disconnect();
+    const update = () => {
+      frame = 0;
+      /* Probe at 38% of the viewport: the section that owns that line is
+         the one the reader is actually looking at. This is deterministic
+         on every browser, unlike relying on observer notifications. */
+      const probe = window.innerHeight * 0.38;
+      let current = nodes[0].id;
+
+      nodes.forEach((node) => {
+        if (node.getBoundingClientRect().top <= probe) current = node.id;
+      });
+
+      const doc = document.documentElement;
+      const atBottom = window.innerHeight + window.scrollY >= doc.scrollHeight - 2;
+      if (atBottom) current = nodes[nodes.length - 1].id;
+
+      setActiveSection(current);
+    };
+
+    const requestUpdate = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener('scroll', requestUpdate, { passive: true });
+    window.addEventListener('resize', requestUpdate);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', requestUpdate);
+      window.removeEventListener('resize', requestUpdate);
+    };
   }, []);
 
   /* ── Global keyboard layer ─────────────────────────────────────── */
