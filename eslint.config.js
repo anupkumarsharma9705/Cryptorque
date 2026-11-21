@@ -5,7 +5,22 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores([
+    'dist',
+    // Static assets and vendored libraries are not application source.
+    'public/**',
+    'assets/**',
+    // Legacy scaffold, retained as history. Not imported by src/main.jsx.
+    'src/App.jsx',
+    'src/Layout.jsx',
+    'src/components/**',
+    'src/context/**',
+    'src/hooks/**',
+    'src/lib/**',
+    'src/pages/**',
+    'src/constants/**',
+    'tailwind.config.js',
+  ]),
   {
     files: ['**/*.{js,jsx}'],
     extends: [
@@ -23,7 +38,14 @@ export default defineConfig([
       },
     },
     rules: {
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      // Core no-unused-vars cannot see JSX usage without eslint-plugin-react.
+      // Capitalized identifiers are components or imports kept for JSX.
+      'no-unused-vars': [
+        'error',
+        { varsIgnorePattern: '^[A-Z_]', argsIgnorePattern: '^[A-Z_]' },
+      ],
+      // This app intentionally co-locates hooks and helpers with components.
+      'react-refresh/only-export-components': 'off',
     },
   },
 ])
