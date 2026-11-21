@@ -68,7 +68,8 @@ function ThreatArtifact({ artifact }) {
       <div className="artifact-summary mono">
         <span><strong>{artifact.meta.threats}</strong> threats</span>
         <span><strong>{artifact.meta.mitigated}</strong> mitigated</span>
-        <span><strong>{artifact.meta.residual}</strong> residual</span>
+        <span><strong>{artifact.meta.partial}</strong> partial</span>
+        <span><strong>{artifact.meta.accepted}</strong> accepted</span>
       </div>
 
       <div className="table-wrap">
@@ -80,19 +81,26 @@ function ThreatArtifact({ artifact }) {
             </tr>
           </thead>
           <tbody>
-            {artifact.rows.map((row) => (
+            {artifact.rows.map((row, rowIndex) => (
               <tr key={row[0]}>
                 {row.map((cell, index) => (
                   <td key={cell} data-label={artifact.headers[index]}>{cell}</td>
                 ))}
                 <td data-label="STATUS">
-                  <Tag color="green" dot>MITIGATED</Tag>
+                  <Tag color={artifact.statuses[rowIndex].color} dot>
+                    {artifact.statuses[rowIndex].label}
+                  </Tag>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      <p className="artifact-footnote mono">
+        <Icons.AlertTriangle size={13} />
+        {artifact.residualNote}
+      </p>
     </div>
   );
 }
@@ -193,7 +201,7 @@ function K6Artifact({ artifact }) {
 
       <p className="artifact-footnote mono">
         <Icons.AlertTriangle size={13} />
-        Full k6 report available on request. Numbers above are from a 60-second run, not a production SLA.
+        {artifact.context}
       </p>
     </div>
   );
@@ -269,9 +277,7 @@ export default function Artifacts({ activeTab, setActiveTab }) {
     });
   };
 
-  const meta = Object.entries(active.meta || {})
-    .filter(([key]) => key !== 'reportUrl')
-    .slice(0, 3);
+  const meta = Object.entries(active.meta || {}).slice(0, 3);
 
   return (
     <section id="artifacts" className="section artifacts" aria-labelledby="artifacts-title">

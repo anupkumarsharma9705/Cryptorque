@@ -66,7 +66,7 @@ export default function Hero({ onOpenPalette }) {
           <span className="telemetry__corner telemetry__corner--br" aria-hidden="true" />
 
           <div className="telemetry__top">
-            <span className="telemetry__live">
+            <span className={`telemetry__live${t.live ? '' : ' is-static'}`}>
               <span className="telemetry__live-dot" aria-hidden="true" />
               {t.state}
             </span>

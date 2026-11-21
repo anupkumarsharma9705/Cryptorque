@@ -891,6 +891,11 @@
   animation: pulse-dot 2.4s ease-in-out infinite;
 }
 
+.telemetry__live.is-static .telemetry__live-dot {
+  animation: none;
+  opacity: 0.7;
+}
+
 .telemetry__module {
   margin-left: auto;
   color: var(--text-2);

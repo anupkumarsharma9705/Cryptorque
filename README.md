@@ -14,7 +14,7 @@ A security-first backend engineering portfolio built as a race-engineer telemetr
 ```bash
 npm install
 npm run dev
-npm run build
+npm run check   # eslint + production build
 npm run preview
 ```
 
@@ -52,11 +52,25 @@ Theme choice persists in `localStorage` under `aks-theme`. The palette and overl
 
 ## Evidence
 
-The artifacts section renders the actual engineering record: a 7-stage gateway pipeline, an 8-threat STRIDE table, the 60-second k6 run (50 VUs, 104.9 RPS, 6,296 requests, p99 47.6 ms, 0.00% errors), and four ADRs. The k6 numbers describe a controlled load test, not a production SLA. Repository links point at the public FinGateway, Secure File Transfer Gateway, and EmotionEcho projects.
+The artifacts section renders the engineering record: a 7-stage gateway pipeline, an 8-threat STRIDE table, the 60-second k6 run (50 VUs, 104.9 RPS, 6,296 requests, p99 47.6 ms, 0.00% errors), and four ADRs.
+
+The threat table is deliberately not "8/8 mitigated": 4 threats are mitigated, 3 are partial, and 1 is accepted with named residual risk. The k6 run is a local Docker Compose latency check at 50 VUs — it records absolute p99, not gateway overhead, because no direct-to-backend baseline was captured. Host CPU/RAM was not recorded. The 100% detection figure covers the four scripted payload classes only; regex detection is documented as bypassable in each project's Known Limits.
+
+Repository links point at the public FinGateway, Secure File Transfer Gateway, and EmotionEcho projects. The full k6 report is available on request; no broken report link is shipped.
+
+## Deploy
+
+The build is a static Vite bundle in `dist/`. Security headers are defined for two common hosts:
+
+- Netlify / Cloudflare Pages: `public/_headers`
+- Vercel: `vercel.json`
+
+Both enforce a same-origin CSP, HSTS, frame denial, and immutable caching for hashed assets. The theme bootstrap is `public/theme-init.js` (not inline) so the CSP does not need an inline-script exception.
 
 ## Content rules
 
 - No proficiency bars; levels are defined by what shipped.
 - No invented production claims, uptime figures, or unsupported infrastructure.
+- "K6 EVIDENCE" replaces any live-telemetry claim; the numbers are from a dated run.
 - Known limitations are shown next to each project.
 - The contact form composes a `mailto:` draft and never submits silently.
